@@ -205,6 +205,7 @@
             justify-content: center;
             align-items: center;
             border: 4px solid #fff3e0;
+            transition: border 0.3s, box-shadow 0.3s;
         }
         .card-display .emoji-large {
             font-size: 100px;
@@ -234,7 +235,7 @@
             padding: 15px 0;
             cursor: pointer;
             box-shadow: 0 4px #66bb6a;
-            transition: border 0.2s;
+            transition: border 0.2s, transform 0.1s;
         }
         .vowel-btn.hint-yellow {
             border: 5px solid #ffd54f !important;
@@ -245,7 +246,47 @@
             100% { transform: scale(1.08); }
         }
 
-        /* 게임 3: 글씨 쓰기 */
+        /* 자모음 결합 게임 스타일 */
+        .combine-target-box {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .char-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            height: 70px;
+            background: #fff8e1;
+            border: 3px dashed #ffb300;
+            border-radius: 16px;
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff6f00;
+            padding: 0 10px;
+        }
+        .char-slot.active {
+            border: 4px solid #ff6f00;
+            background: #ffe082;
+            animation: slotPulse 0.8s infinite alternate;
+        }
+        @keyframes slotPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .completed-glow {
+            border: 5px solid #ffd54f !important;
+            box-shadow: 0 0 30px #ffd54f, inset 0 0 15px #ffd54f !important;
+            animation: goldGlow 0.5s infinite alternate;
+        }
+        @keyframes goldGlow {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* 게임 4: 글씨 쓰기 스타일 */
         .g2-layout {
             display: flex;
             flex-direction: column;
@@ -400,14 +441,17 @@
             box-shadow: 0 4px #388e3c;
         }
 
+        /* 피드백 피드백(⭕/❌) 위치: 최하단 */
         .feedback {
             position: fixed;
-            top: 50%; left: 50%;
+            top: 85%; 
+            left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 150px;
+            font-size: 110px;
             display: none;
             z-index: 100;
-            text-shadow: 0 0 20px rgba(0,0,0,0.2);
+            text-shadow: 0 0 15px rgba(0,0,0,0.2);
+            pointer-events: none;
         }
     </style>
 </head>
@@ -419,7 +463,8 @@
             <nav>
                 <button id="nav-g0" class="active" onclick="switchGame('g0')">1. 어휘 매칭</button>
                 <button id="nav-g1" onclick="switchGame('g1')">2. 숨은 모음 찾기</button>
-                <button id="nav-g2" onclick="switchGame('g2')">3. 따라쓰기</button>
+                <button id="nav-g2" onclick="switchGame('g2')">3. 자모음 결합</button>
+                <button id="nav-g3" onclick="switchGame('g3')">4. 따라쓰기</button>
             </nav>
         </div>
     </header>
@@ -444,8 +489,20 @@
             </div>
         </div>
 
-        <!-- 게임 3: 글씨 쓰기 -->
+        <!-- 게임 3: 자모음 결합 게임 -->
         <div id="screen-g2" class="screen">
+            <div class="status-badge" id="g2-status">자모음 결합 (알맞은 모음을 선택해 글자를 완성하세요!)</div>
+            <div class="g1-content">
+                <div class="card-display" id="g2-card" onclick="speakG2AnimalCombine()">
+                    <div class="emoji-large" id="g2-emoji">🦁</div>
+                    <div class="combine-target-box" id="g2-target-box"></div>
+                </div>
+                <div class="vowel-grid" id="g2-vowel-grid"></div>
+            </div>
+        </div>
+
+        <!-- 게임 4: 글씨 쓰기 (따라쓰기) -->
+        <div id="screen-g3" class="screen">
             <div class="g2-layout">
                 <div class="canvas-container" id="canvas-container">
                     <div class="guide-text" id="guide-text"></div>
@@ -453,7 +510,7 @@
                 </div>
                 <div class="write-bottom-bar">
                     <div class="write-controls">
-                        <button onclick="speakG2Animal()">🔊 소리 듣기</button>
+                        <button onclick="speakG3AnimalTrace()">🔊 소리 듣기</button>
                         <button onclick="clearCanvas()">지우기</button>
                     </div>
                     <div class="animal-list" id="animal-list"></div>
@@ -477,6 +534,15 @@
             <h2>참 잘했어요! 🏆</h2>
             <p>10문제를 모두 맞혔어요!<br>한번 더 해볼까요?</p>
             <button onclick="restartG1Game()">예!</button>
+        </div>
+    </div>
+
+    <!-- 자모음 결합 완료 모달 -->
+    <div class="modal-overlay" id="g2-replay-modal">
+        <div class="modal-box">
+            <h2>대단해요! 🏆</h2>
+            <p>모든 단어를 완벽하게 만들었어요!<br>다시 도전해볼까요?</p>
+            <button onclick="restartG2CombineGame()">예!</button>
         </div>
     </div>
 
@@ -536,8 +602,8 @@
         };
 
         let currentGame = 'g0';
-        let currentAnimalIndex = 0; // 게임 1, 2용 인덱스
-        let g2AnimalIndex = 0;       // 게임 3(따라쓰기) 전용 고정 인덱스
+        let currentAnimalIndex = 0; 
+        let g3AnimalIndex = 0; // 따라쓰기 인덱스
 
         let g0Mode = 'practice';
         let g0PracticeStep = 0;
@@ -546,6 +612,19 @@
         let g1Mode = 'practice';
         let g1PracticeIndex = 0;
         let g1MainIndex = 0;
+
+        /* 자모음 결합 데이터 및 상태 */
+        const g2CombineAnimalsData = [
+            { name: '사자', emoji: '🦁', chars: [{ cho: 'ㅅ', vowel: 'ㅏ', full: '사' }, { cho: 'ㅈ', vowel: 'ㅏ', full: '자' }] },
+            { name: '여우', emoji: '🦊', chars: [{ cho: 'ㅇ', vowel: 'ㅕ', full: '여' }, { cho: 'ㅇ', vowel: 'ㅜ', full: '우' }] },
+            { name: '오리', emoji: '🦆', chars: [{ cho: 'ㅇ', vowel: 'ㅗ', full: '오' }, { cho: 'ㄹ', vowel: 'ㅣ', full: '리' }] },
+            { name: '두더지', emoji: '🦦', chars: [{ cho: 'ㄷ', vowel: 'ㅜ', full: '두' }, { cho: 'ㄷ', vowel: 'ㅓ', full: '더' }, { cho: 'ㅈ', vowel: 'ㅣ', full: '지' }] },
+            { name: '퓨마', emoji: '🐆', chars: [{ cho: 'ㅍ', vowel: 'ㅠ', full: '퓨' }, { cho: 'ㅁ', vowel: 'ㅏ', full: '마' }] },
+            { name: '비버', emoji: '🦫', chars: [{ cho: 'ㅂ', vowel: 'ㅣ', full: '비' }, { cho: 'ㅂ', vowel: 'ㅓ', full: '버' }] }
+        ];
+        let g2CombineIndex = 0;
+        let g2CharStep = 0;
+        let g2CurrentState = [];
 
         function speak(text) {
             window.speechSynthesis.cancel();
@@ -559,8 +638,12 @@
             speak(animals[currentAnimalIndex].name);
         }
 
-        function speakG2Animal() {
-            speak(baseAnimals[g2AnimalIndex].name);
+        function speakG2AnimalCombine() {
+            speak(g2CombineAnimalsData[g2CombineIndex].name);
+        }
+
+        function speakG3AnimalTrace() {
+            speak(baseAnimals[g3AnimalIndex].name);
         }
 
         /* --- 게임 1: 매칭하기 --- */
@@ -799,7 +882,93 @@
             }
         }
 
-        /* --- 게임 3: 따라쓰기 --- */
+        /* --- 게임 3: 자모음 결합 게임 --- */
+        function initCombineGame() {
+            const status = document.getElementById('g2-status');
+            const currentItem = g2CombineAnimalsData[g2CombineIndex];
+
+            status.innerText = `문제 (${g2CombineIndex + 1}/${g2CombineAnimalsData.length}): ${currentItem.name} 단어를 만드세요!`;
+            document.getElementById('g2-emoji').innerText = currentItem.emoji;
+
+            const card = document.getElementById('g2-card');
+            card.classList.remove('completed-glow');
+
+            g2CharStep = 0;
+            g2CurrentState = currentItem.chars.map(c => c.cho);
+
+            renderCombineTarget();
+            renderCombineVowels();
+        }
+
+        function renderCombineTarget() {
+            const box = document.getElementById('g2-target-box');
+            box.innerHTML = '';
+
+            g2CurrentState.forEach((text, i) => {
+                const slot = document.createElement('div');
+                slot.className = 'char-slot';
+                if (i === g2CharStep) slot.classList.add('active');
+                slot.innerText = text;
+                box.appendChild(slot);
+            });
+        }
+
+        function renderCombineVowels() {
+            const grid = document.getElementById('g2-vowel-grid');
+            grid.innerHTML = '';
+
+            vowels.forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = 'vowel-btn';
+                btn.innerText = v;
+
+                btn.onclick = () => handleCombineVowelSelect(v);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleCombineVowelSelect(selectedVowel) {
+            const currentItem = g2CombineAnimalsData[g2CombineIndex];
+            const targetChar = currentItem.chars[g2CharStep];
+
+            speak(vowelSounds[selectedVowel]);
+
+            if (selectedVowel === targetChar.vowel) {
+                showFeedback('⭕', '#4caf50');
+                playSound('correct');
+
+                g2CurrentState[g2CharStep] = targetChar.full;
+                g2CharStep++;
+
+                renderCombineTarget();
+
+                if (g2CharStep >= currentItem.chars.length) {
+                    const card = document.getElementById('g2-card');
+                    card.classList.add('completed-glow');
+                    speak(currentItem.name);
+
+                    setTimeout(() => {
+                        g2CombineIndex++;
+                        if (g2CombineIndex >= g2CombineAnimalsData.length) {
+                            document.getElementById('g2-replay-modal').style.display = 'flex';
+                        } else {
+                            initCombineGame();
+                        }
+                    }, 1500);
+                }
+            } else {
+                showFeedback('❌', '#e53935');
+                playSound('wrong');
+            }
+        }
+
+        function restartG2CombineGame() {
+            document.getElementById('g2-replay-modal').style.display = 'none';
+            g2CombineIndex = 0;
+            initCombineGame();
+        }
+
+        /* --- 게임 4: 따라쓰기 --- */
         function initAnimalList() {
             const list = document.getElementById('animal-list');
             list.innerHTML = '';
@@ -819,18 +988,18 @@
         }
 
         function selectAnimal(index) {
-            g2AnimalIndex = index;
+            g3AnimalIndex = index;
             document.querySelectorAll('.animal-item').forEach(i => i.classList.remove('selected'));
             const selectedEl = document.getElementById(`animal-item-${index}`);
             if (selectedEl) selectedEl.classList.add('selected');
             
-            speakG2Animal();
+            speakG3AnimalTrace();
             updateGuideText();
             clearCanvas();
         }
 
         function updateGuideText() {
-            const animal = baseAnimals[g2AnimalIndex];
+            const animal = baseAnimals[g3AnimalIndex];
             const guideEl = document.getElementById('guide-text');
             const name = animal.name;
 
@@ -868,7 +1037,11 @@
             } else if (gameType === 'g2') {
                 document.getElementById('nav-g2').classList.add('active');
                 document.getElementById('screen-g2').classList.add('active');
-                selectAnimal(g2AnimalIndex);
+                initCombineGame();
+            } else if (gameType === 'g3') {
+                document.getElementById('nav-g3').classList.add('active');
+                document.getElementById('screen-g3').classList.add('active');
+                selectAnimal(g3AnimalIndex);
                 setTimeout(resizeCanvas, 50);
             }
         }
@@ -890,7 +1063,7 @@
             
             window.addEventListener('resize', () => {
                 resizeCanvas();
-                if (currentGame === 'g2') updateGuideText();
+                if (currentGame === 'g3') updateGuideText();
             });
 
             drawCanvas.addEventListener('pointerdown', startDrawing);
