@@ -22,17 +22,20 @@
             background-color: #f4f6f8;
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
         }
 
+        /* 헤더 영역 */
         header {
             width: 100%;
+            height: 50px;
             background-color: #fff8e1;
             border-bottom: 2px solid #ffe082;
-            padding: 8px 15px;
+            padding: 4px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             flex-shrink: 0;
             z-index: 10;
         }
@@ -40,26 +43,26 @@
         .header-title-zone {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         h1 {
             margin: 0;
             color: #ff6f00;
-            font-size: 22px;
+            font-size: 18px;
             letter-spacing: -1px;
             white-space: nowrap;
         }
 
         nav {
             display: flex;
-            gap: 8px;
+            gap: 4px;
         }
         nav button {
-            padding: 8px 16px;
-            font-size: 15px;
+            padding: 6px 12px;
+            font-size: 13px;
             font-weight: bold;
             border: none;
-            border-radius: 20px;
+            border-radius: 12px;
             background-color: #ffffff;
             color: #666;
             cursor: pointer;
@@ -71,15 +74,17 @@
             color: white;
         }
 
+        /* 메인 영역: 상단 70% 높이 고정 */
         .container {
             width: 100%;
-            flex-grow: 1;
-            padding: 12px;
+            height: calc(70vh - 50px);
+            padding: 4px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             position: relative;
+            overflow: hidden;
         }
 
         .screen {
@@ -95,54 +100,54 @@
         .status-badge {
             background-color: #e8f5e9;
             color: #2e7d32;
-            padding: 6px 20px;
-            border-radius: 20px;
+            padding: 3px 12px;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 13px;
             border: 1px solid #a5d6a7;
             flex-shrink: 0;
-            margin-bottom: 8px;
+            margin-bottom: 2px;
         }
 
-        /* 게임 1: 어휘 매칭 */
+        /* 게임 1: 어휘 매칭 (키운 크기) */
         .vocab-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 8px;
             width: 100%;
-            max-width: 700px;
+            max-width: 580px;
             flex-grow: 1;
             align-items: center;
             justify-content: center;
         }
         .vocab-card {
             background: white;
-            border-radius: 20px;
-            padding: 10px;
+            border-radius: 14px;
+            padding: 4px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            border: 3px solid #eee;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border: 2px solid #eee;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100%;
         }
         .vocab-card .emoji-display {
-            font-size: 70px;
+            font-size: 52px; /* 그림 확장 */
             cursor: pointer;
             line-height: 1;
-            margin-bottom: 5px;
         }
         .drop-box {
-            width: 90%;
-            height: 50px;
-            border: 3px dashed #90caf9;
-            border-radius: 12px;
+            width: 95%;
+            height: 38px;
+            border: 2px dashed #90caf9;
+            border-radius: 8px;
             background-color: #f1f8e9;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 22px;
+            font-size: 18px; /* 글자 확대 */
             font-weight: bold;
             color: #2e7d32;
             transition: all 0.2s;
@@ -150,149 +155,148 @@
         .drop-box.hovered {
             background-color: #e3f2fd;
             border-color: #2196f3;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
         .drop-box.correct {
-            border: 3px solid #4caf50;
+            border: 2px solid #4caf50;
             background-color: #e8f5e9;
         }
 
         .word-pool {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 90px;
-            padding: 10px;
+            height: 48px;
+            padding: 2px 6px;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             flex-shrink: 0;
             flex-wrap: wrap;
         }
         .word-chip {
             background-color: #ffb74d;
             color: white;
-            font-size: 20px;
+            font-size: 16px; /* 글자 확대 */
             font-weight: bold;
-            padding: 8px 20px;
-            border-radius: 16px;
+            padding: 5px 14px;
+            border-radius: 10px;
             cursor: grab;
-            box-shadow: 0 4px #f57c00;
+            box-shadow: 0 2px #f57c00;
             touch-action: none;
         }
 
-        /* 게임 2: 숨은 모음 찾기 */
+        /* 게임 2 & 3 공통 카드 스타일 (키운 크기) */
         .g1-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-around;
             flex-grow: 1;
             width: 100%;
-            gap: 15px;
         }
         .card-display {
             background: white;
-            border-radius: 28px;
-            padding: 20px 40px;
+            border-radius: 16px;
+            padding: 6px 20px;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
             cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border: 4px solid #fff3e0;
+            border: 3px solid #fff3e0;
             transition: border 0.3s, box-shadow 0.3s;
         }
         .card-display .emoji-large {
-            font-size: 100px;
+            font-size: 72px; /* 그림 키움 */
             line-height: 1;
         }
         .animal-name {
-            font-size: 32px;
+            font-size: 26px; /* 글자 키움 */
             font-weight: bold;
-            margin-top: 8px;
+            margin-top: 2px;
             color: #333;
         }
 
         .vowel-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
         }
         .vowel-btn {
             background-color: #81c784;
             color: white;
-            font-size: 32px;
+            font-size: 24px; /* 글자 키움 */
             font-weight: bold;
             border: none;
-            border-radius: 16px;
-            padding: 15px 0;
+            border-radius: 10px;
+            padding: 6px 0;
             cursor: pointer;
-            box-shadow: 0 4px #66bb6a;
+            box-shadow: 0 3px #66bb6a;
             transition: border 0.2s, transform 0.1s;
         }
         .vowel-btn.hint-yellow {
-            border: 5px solid #ffd54f !important;
+            border: 3px solid #ffd54f !important;
             animation: pulse 1s infinite alternate;
         }
         @keyframes pulse {
             0% { transform: scale(1); }
-            100% { transform: scale(1.08); }
+            100% { transform: scale(1.05); }
         }
 
         /* 자모음 결합 게임 스타일 */
         .combine-target-box {
             display: flex;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 4px;
         }
         .char-slot {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 70px;
-            height: 70px;
+            min-width: 50px;
+            height: 50px;
             background: #fff8e1;
-            border: 3px dashed #ffb300;
-            border-radius: 16px;
-            font-size: 36px;
+            border: 2px dashed #ffb300;
+            border-radius: 10px;
+            font-size: 26px; /* 글자 키움 */
             font-weight: bold;
             color: #ff6f00;
-            padding: 0 10px;
+            padding: 0 6px;
         }
         .char-slot.active {
-            border: 4px solid #ff6f00;
+            border: 3px solid #ff6f00;
             background: #ffe082;
             animation: slotPulse 0.8s infinite alternate;
         }
         @keyframes slotPulse {
             0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
+            100% { transform: scale(1.03); }
         }
 
         .completed-glow {
-            border: 5px solid #ffd54f !important;
-            box-shadow: 0 0 30px #ffd54f, inset 0 0 15px #ffd54f !important;
+            border: 3px solid #ffd54f !important;
+            box-shadow: 0 0 15px #ffd54f, inset 0 0 8px #ffd54f !important;
             animation: goldGlow 0.5s infinite alternate;
         }
         @keyframes goldGlow {
             0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
+            100% { transform: scale(1.03); }
         }
 
-        /* 게임 4: 글씨 쓰기 스타일 */
+        /* 게임 4: 따라쓰기 스타일 */
         .g2-layout {
             display: flex;
             flex-direction: column;
             width: 100%;
             height: 100%;
-            gap: 10px;
+            gap: 4px;
         }
         
         .canvas-container {
@@ -300,14 +304,14 @@
             width: 100%;
             flex-grow: 1;
             background: white;
-            border: 5px dashed #64b5f6;
-            border-radius: 25px;
+            border: 3px dashed #64b5f6;
+            border-radius: 16px;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             touch-action: none;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
         }
         
         .guide-text {
@@ -322,7 +326,7 @@
             pointer-events: none;
             opacity: 0.22;
             color: #2196f3;
-            letter-spacing: -4px;
+            letter-spacing: -3px;
             line-height: 1;
             white-space: nowrap;
         }
@@ -339,51 +343,51 @@
         .write-bottom-bar {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
             width: 100%;
-            height: 110px;
+            height: 52px;
             flex-shrink: 0;
         }
 
         .write-controls {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
             flex-shrink: 0;
         }
         .write-controls button {
-            padding: 10px 18px;
-            font-size: 15px;
+            padding: 4px 10px;
+            font-size: 11px;
             font-weight: bold;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             background-color: #ff80ab;
             color: white;
             cursor: pointer;
-            box-shadow: 0 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px rgba(0,0,0,0.1);
             white-space: nowrap;
         }
 
         .animal-list {
             display: flex;
-            gap: 12px;
+            gap: 6px;
             flex-grow: 1;
             overflow-x: auto;
-            padding: 4px 0;
+            padding: 2px 0;
             align-items: center;
             -webkit-overflow-scrolling: touch;
         }
         .animal-item {
             background: white;
-            border: 3px solid #eee;
-            border-radius: 16px;
-            padding: 6px 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 2px 6px;
             text-align: center;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 90px;
+            min-width: 55px;
             flex-shrink: 0;
             transition: transform 0.1s;
         }
@@ -392,11 +396,11 @@
             border-color: #ffb300;
             background-color: #fff8e1;
         }
-        .animal-item .emoji-mini { font-size: 36px; line-height: 1; }
+        .animal-item .emoji-mini { font-size: 24px; line-height: 1; }
         .animal-item .name {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 1px;
             color: #444;
         }
 
@@ -413,44 +417,44 @@
         }
         .modal-box {
             background: white;
-            padding: 30px;
-            border-radius: 24px;
+            padding: 16px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             max-width: 80%;
         }
         .modal-box h2 {
-            margin: 0 0 10px 0;
+            margin: 0 0 6px 0;
             color: #ff6f00;
-            font-size: 28px;
+            font-size: 18px;
         }
         .modal-box p {
-            font-size: 20px;
+            font-size: 14px;
             color: #444;
-            margin-bottom: 25px;
+            margin-bottom: 14px;
         }
         .modal-box button {
             background-color: #4caf50;
             color: white;
-            font-size: 20px;
+            font-size: 14px;
             font-weight: bold;
-            padding: 12px 30px;
+            padding: 8px 20px;
             border: none;
-            border-radius: 16px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px #388e3c;
+            box-shadow: 0 3px #388e3c;
         }
 
-        /* 피드백 피드백(⭕/❌) 위치: 최하단 */
+        /* 피드백(⭕/❌) 위치 */
         .feedback {
             position: fixed;
-            top: 85%; 
+            top: 35%; 
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 110px;
+            font-size: 80px;
             display: none;
             z-index: 100;
-            text-shadow: 0 0 15px rgba(0,0,0,0.2);
+            text-shadow: 0 0 10px rgba(0,0,0,0.2);
             pointer-events: none;
         }
     </style>
@@ -462,7 +466,7 @@
             <h1>숨바꼭질 ㅏ야어여</h1>
             <nav>
                 <button id="nav-g0" class="active" onclick="switchGame('g0')">1. 어휘 매칭</button>
-                <button id="nav-g1" onclick="switchGame('g1')">2. 숨은 모음 찾기</button>
+                <button id="nav-g1" onclick="switchGame('g1')">2. 숨은 모음</button>
                 <button id="nav-g2" onclick="switchGame('g2')">3. 자모음 결합</button>
                 <button id="nav-g3" onclick="switchGame('g3')">4. 따라쓰기</button>
             </nav>
@@ -603,7 +607,7 @@
 
         let currentGame = 'g0';
         let currentAnimalIndex = 0; 
-        let g3AnimalIndex = 0; // 따라쓰기 인덱스
+        let g3AnimalIndex = 0;
 
         let g0Mode = 'practice';
         let g0PracticeStep = 0;
@@ -613,7 +617,6 @@
         let g1PracticeIndex = 0;
         let g1MainIndex = 0;
 
-        /* 자모음 결합 데이터 및 상태 */
         const g2CombineAnimalsData = [
             { name: '사자', emoji: '🦁', chars: [{ cho: 'ㅅ', vowel: 'ㅏ', full: '사' }, { cho: 'ㅈ', vowel: 'ㅏ', full: '자' }] },
             { name: '여우', emoji: '🦊', chars: [{ cho: 'ㅇ', vowel: 'ㅕ', full: '여' }, { cho: 'ㅇ', vowel: 'ㅜ', full: '우' }] },
@@ -1004,10 +1007,10 @@
             const name = animal.name;
 
             const container = document.getElementById('canvas-container');
-            const h = container.clientHeight || 300;
+            const h = container.clientHeight || 180;
 
-            let fontRatio = 0.6;
-            if (name.length === 3) fontRatio = 0.45;
+            let fontRatio = 0.5;
+            if (name.length === 3) fontRatio = 0.35;
             const calculatedFontSize = Math.floor(h * fontRatio);
 
             guideEl.style.fontSize = `${calculatedFontSize}px`;
@@ -1111,7 +1114,7 @@
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(pos.x, pos.y);
             ctx.strokeStyle = '#1565c0';
-            ctx.lineWidth = 12;
+            ctx.lineWidth = 8;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.stroke();
