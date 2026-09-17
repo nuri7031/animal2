@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>숨바꼭질 ㅏ야어여</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Nanum Gothic', 'Malgun Gothic', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* 헤더 영역 */
+        header {
+            width: 100%;
+            height: 50px;
+            background-color: #fff8e1;
+            border-bottom: 2px solid #ffe082;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        
+        .header-title-zone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 {
+            margin: 0;
+            color: #ff6f00;
+            font-size: 18px;
+            letter-spacing: -1px;
+            white-space: nowrap;
+        }
+
+        nav {
+            display: flex;
+            gap: 4px;
+        }
+        nav button {
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            background-color: #ffffff;
+            color: #666;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        nav button.active {
+            background-color: #ff8f00;
+            color: white;
+        }
+
+        /* 메인 영역: 상단 70% 높이 고정 */
+        .container {
+            width: 100%;
+            height: calc(70vh - 50px);
+            padding: 4px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .screen.active { display: flex; }
+
+        .status-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+            border: 1px solid #a5d6a7;
+            flex-shrink: 0;
+            margin-bottom: 2px;
+        }
+
+        /* 게임 1: 어휘 매칭 (키운 크기) */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 580px;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+        }
+        .vocab-card {
+            background: white;
+            border-radius: 14px;
+            padding: 4px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border: 2px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .vocab-card .emoji-display {
+            font-size: 52px; /* 그림 확장 */
+            cursor: pointer;
+            line-height: 1;
+        }
+        .drop-box {
+            width: 95%;
+            height: 38px;
+            border: 2px dashed #90caf9;
+            border-radius: 8px;
+            background-color: #f1f8e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px; /* 글자 확대 */
+            font-weight: bold;
+            color: #2e7d32;
+            transition: all 0.2s;
+        }
+        .drop-box.hovered {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            transform: scale(1.02);
+        }
+        .drop-box.correct {
+            border: 2px solid #4caf50;
+            background-color: #e8f5e9;
+        }
+
+        .word-pool {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 48px;
+            padding: 2px 6px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .word-chip {
+            background-color: #ffb74d;
+            color: white;
+            font-size: 16px; /* 글자 확대 */
+            font-weight: bold;
+            padding: 5px 14px;
+            border-radius: 10px;
+            cursor: grab;
+            box-shadow: 0 2px #f57c00;
+            touch-action: none;
+        }
+
+        /* 게임 2 & 3 공통 카드 스타일 (키운 크기) */
+        .g1-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            flex-grow: 1;
+            width: 100%;
+        }
+        .card-display {
+            background: white;
+            border-radius: 16px;
+            padding: 6px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #fff3e0;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+        .card-display .emoji-large {
+            font-size: 72px; /* 그림 키움 */
+            line-height: 1;
+        }
+        .animal-name {
+            font-size: 26px; /* 글자 키움 */
+            font-weight: bold;
+            margin-top: 2px;
+            color: #333;
+        }
+
+        .vowel-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 480px;
+        }
+        .vowel-btn {
+            background-color: #81c784;
+            color: white;
+            font-size: 24px; /* 글자 키움 */
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            padding: 6px 0;
+            cursor: pointer;
+            box-shadow: 0 3px #66bb6a;
+            transition: border 0.2s, transform 0.1s;
+        }
+        .vowel-btn.hint-yellow {
+            border: 3px solid #ffd54f !important;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* 자모음 결합 게임 스타일 */
+        .combine-target-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .char-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            height: 50px;
+            background: #fff8e1;
+            border: 2px dashed #ffb300;
+            border-radius: 10px;
+            font-size: 26px; /* 글자 키움 */
+            font-weight: bold;
+            color: #ff6f00;
+            padding: 0 6px;
+        }
+        .char-slot.active {
+            border: 3px solid #ff6f00;
+            background: #ffe082;
+            animation: slotPulse 0.8s infinite alternate;
+        }
+        @keyframes slotPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+
+        .completed-glow {
+            border: 3px solid #ffd54f !important;
+            box-shadow: 0 0 15px #ffd54f, inset 0 0 8px #ffd54f !important;
+            animation: goldGlow 0.5s infinite alternate;
+        }
+        @keyframes goldGlow {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+
+        /* 게임 4: 따라쓰기 스타일 */
+        .g2-layout {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            gap: 4px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            flex-grow: 1;
+            background: white;
+            border: 3px dashed #64b5f6;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
+        }
+        
+        .guide-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0.22;
+            color: #2196f3;
+            letter-spacing: -3px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        
+        #draw-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            touch-action: none;
+            cursor: crosshair;
+            z-index: 10;
+        }
+
+        .write-bottom-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            height: 52px;
+            flex-shrink: 0;
+        }
+
+        .write-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .write-controls button {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff80ab;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .animal-list {
+            display: flex;
+            gap: 6px;
+            flex-grow: 1;
+            overflow-x: auto;
+            padding: 2px 0;
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
+        }
+        .animal-item {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 2px 6px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 55px;
+            flex-shrink: 0;
+            transition: transform 0.1s;
+        }
+        .animal-item:active { transform: scale(0.95); }
+        .animal-item.selected {
+            border-color: #ffb300;
+            background-color: #fff8e1;
+        }
+        .animal-item .emoji-mini { font-size: 24px; line-height: 1; }
+        .animal-item .name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 1px;
+            color: #444;
+        }
+
+        /* 팝업 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .modal-box {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            max-width: 80%;
+        }
+        .modal-box h2 {
+            margin: 0 0 6px 0;
+            color: #ff6f00;
+            font-size: 18px;
+        }
+        .modal-box p {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 14px;
+        }
+        .modal-box button {
+            background-color: #4caf50;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 3px #388e3c;
+        }
+
+        /* 피드백(⭕/❌) 위치 */
+        .feedback {
+            position: fixed;
+            top: 35%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            display: none;
+            z-index: 100;
+            text-shadow: 0 0 10px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title-zone">
+            <h1>숨바꼭질 ㅏ야어여</h1>
+            <nav>
+                <button id="nav-g0" class="active" onclick="switchGame('g0')">1. 어휘 매칭</button>
+                <button id="nav-g1" onclick="switchGame('g1')">2. 숨은 모음</button>
+                <button id="nav-g2" onclick="switchGame('g2')">3. 자모음 결합</button>
+                <button id="nav-g3" onclick="switchGame('g3')">4. 따라쓰기</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="main-container">
+        <!-- 게임 1: 어휘 매칭 -->
+        <div id="screen-g0" class="screen active">
+            <div class="status-badge" id="g0-status">연습 문제 (그림 밑 상자로 단어를 끌어다 놓으세요!)</div>
+            <div class="vocab-grid" id="vocab-grid"></div>
+            <div class="word-pool" id="word-pool"></div>
+        </div>
+
+        <!-- 게임 2: 숨은 모음 찾기 -->
+        <div id="screen-g1" class="screen">
+            <div class="status-badge" id="g1-status">연습 문제 (노란색 힌트 모음을 찾아 눌러보세요!)</div>
+            <div class="g1-content">
+                <div class="card-display" onclick="speakCurrentAnimal()">
+                    <div class="emoji-large" id="g1-emoji">🦁</div>
+                    <div class="animal-name" id="g1-name">사자</div>
+                </div>
+                <div class="vowel-grid" id="vowel-grid"></div>
+            </div>
+        </div>
+
+        <!-- 게임 3: 자모음 결합 게임 -->
+        <div id="screen-g2" class="screen">
+            <div class="status-badge" id="g2-status">자모음 결합 (알맞은 모음을 선택해 글자를 완성하세요!)</div>
+            <div class="g1-content">
+                <div class="card-display" id="g2-card" onclick="speakG2AnimalCombine()">
+                    <div class="emoji-large" id="g2-emoji">🦁</div>
+                    <div class="combine-target-box" id="g2-target-box"></div>
+                </div>
+                <div class="vowel-grid" id="g2-vowel-grid"></div>
+            </div>
+        </div>
+
+        <!-- 게임 4: 글씨 쓰기 (따라쓰기) -->
+        <div id="screen-g3" class="screen">
+            <div class="g2-layout">
+                <div class="canvas-container" id="canvas-container">
+                    <div class="guide-text" id="guide-text"></div>
+                    <canvas id="draw-canvas"></canvas>
+                </div>
+                <div class="write-bottom-bar">
+                    <div class="write-controls">
+                        <button onclick="speakG3AnimalTrace()">🔊 소리 듣기</button>
+                        <button onclick="clearCanvas()">지우기</button>
+                    </div>
+                    <div class="animal-list" id="animal-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 도전 안내 팝업 모달 -->
+    <div class="modal-overlay" id="challenge-modal">
+        <div class="modal-box">
+            <h2>잘했어요! 🎉</h2>
+            <p>이제 진짜 실력을 발휘할 시간!<br>본 도전으로 넘어가볼까요?</p>
+            <button onclick="startMainChallenge()">도전해볼까요?</button>
+        </div>
+    </div>
+
+    <!-- 10문제 완료 후 재도전 팝업 모달 -->
+    <div class="modal-overlay" id="replay-modal">
+        <div class="modal-box">
+            <h2>참 잘했어요! 🏆</h2>
+            <p>10문제를 모두 맞혔어요!<br>한번 더 해볼까요?</p>
+            <button onclick="restartG1Game()">예!</button>
+        </div>
+    </div>
+
+    <!-- 자모음 결합 완료 모달 -->
+    <div class="modal-overlay" id="g2-replay-modal">
+        <div class="modal-box">
+            <h2>대단해요! 🏆</h2>
+            <p>모든 단어를 완벽하게 만들었어요!<br>다시 도전해볼까요?</p>
+            <button onclick="restartG2CombineGame()">예!</button>
+        </div>
+    </div>
+
+    <div id="feedback" class="feedback">⭕</div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        const baseAnimals = [
+            { name: '사자', emoji: '🦁', vowel: 'ㅏ' },
+            { name: '양', emoji: '🐑', vowel: 'ㅑ' },
+            { name: '거북이', emoji: '🐢', vowel: 'ㅓ' },
+            { name: '여우', emoji: '🦊', vowel: 'ㅕ' },
+            { name: '오리', emoji: '🦆', vowel: 'ㅗ' },
+            { name: '표범', emoji: '🐆', vowel: 'ㅛ' },
+            { name: '두더지', emoji: '🦦', vowel: 'ㅜ' },
+            { name: '퓨마', emoji: '🐆', vowel: 'ㅠ' },
+            { name: '스컹크', emoji: '🦨', vowel: 'ㅡ' },
+            { name: '비버', emoji: '🦫', vowel: 'ㅣ' }
+        ];
+
+        let animals = [...baseAnimals];
+
+        const vowels = ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ'];
+        const vowelSounds = {
+            'ㅏ': '아', 'ㅑ': '야', 'ㅓ': '어', 'ㅕ': '여',
+            'ㅗ': '오', 'ㅛ': '요', 'ㅜ': '우', 'ㅠ': '유', 'ㅡ': '으', 'ㅣ': '이'
+        };
+
+        let currentGame = 'g0';
+        let currentAnimalIndex = 0; 
+        let g3AnimalIndex = 0;
+
+        let g0Mode = 'practice';
+        let g0PracticeStep = 0;
+        let g0MainBatchIndex = 0;
+
+        let g1Mode = 'practice';
+        let g1PracticeIndex = 0;
+        let g1MainIndex = 0;
+
+        const g2CombineAnimalsData = [
+            { name: '사자', emoji: '🦁', chars: [{ cho: 'ㅅ', vowel: 'ㅏ', full: '사' }, { cho: 'ㅈ', vowel: 'ㅏ', full: '자' }] },
+            { name: '여우', emoji: '🦊', chars: [{ cho: 'ㅇ', vowel: 'ㅕ', full: '여' }, { cho: 'ㅇ', vowel: 'ㅜ', full: '우' }] },
+            { name: '오리', emoji: '🦆', chars: [{ cho: 'ㅇ', vowel: 'ㅗ', full: '오' }, { cho: 'ㄹ', vowel: 'ㅣ', full: '리' }] },
+            { name: '두더지', emoji: '🦦', chars: [{ cho: 'ㄷ', vowel: 'ㅜ', full: '두' }, { cho: 'ㄷ', vowel: 'ㅓ', full: '더' }, { cho: 'ㅈ', vowel: 'ㅣ', full: '지' }] },
+            { name: '퓨마', emoji: '🐆', chars: [{ cho: 'ㅍ', vowel: 'ㅠ', full: '퓨' }, { cho: 'ㅁ', vowel: 'ㅏ', full: '마' }] },
+            { name: '비버', emoji: '🦫', chars: [{ cho: 'ㅂ', vowel: 'ㅣ', full: '비' }, { cho: 'ㅂ', vowel: 'ㅓ', full: '버' }] }
+        ];
+        let g2CombineIndex = 0;
+        let g2CharStep = 0;
+        let g2CurrentState = [];
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentAnimal() {
+            speak(animals[currentAnimalIndex].name);
+        }
+
+        function speakG2AnimalCombine() {
+            speak(g2CombineAnimalsData[g2CombineIndex].name);
+        }
+
+        function speakG3AnimalTrace() {
+            speak(baseAnimals[g3AnimalIndex].name);
+        }
+
+        /* --- 게임 1: 매칭하기 --- */
+        let draggedName = '';
+
+        function initVocabGame() {
+            const grid = document.getElementById('vocab-grid');
+            const pool = document.getElementById('word-pool');
+            const status = document.getElementById('g0-status');
+            grid.innerHTML = '';
+            pool.innerHTML = '';
+
+            let currentBatch = [];
+
+            if (g0Mode === 'practice') {
+                status.innerText = `연습 문제 (${g0PracticeStep + 1}/3)`;
+                currentBatch = [animals[g0PracticeStep]];
+            } else {
+                status.innerText = `본 도전 문제 (${g0MainBatchIndex + 1}/5단계)`;
+                currentBatch = animals.slice(g0MainBatchIndex * 2, (g0MainBatchIndex + 1) * 2);
+            }
+
+            currentBatch.forEach((animal) => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card';
+
+                const emojiDiv = document.createElement('div');
+                emojiDiv.className = 'emoji-display';
+                emojiDiv.innerText = animal.emoji;
+                emojiDiv.onclick = () => speak(animal.name);
+                card.appendChild(emojiDiv);
+
+                const dropBox = document.createElement('div');
+                dropBox.className = 'drop-box';
+                dropBox.dataset.answer = animal.name;
+
+                dropBox.addEventListener('dragover', (e) => e.preventDefault());
+                dropBox.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    processMatching(animal.name, dropBox);
+                });
+
+                card.appendChild(dropBox);
+                grid.appendChild(card);
+            });
+
+            const shuffledWords = [...currentBatch].sort(() => Math.random() - 0.5);
+            shuffledWords.forEach(animal => {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.dataset.name = animal.name;
+                chip.innerText = animal.name;
+                chip.draggable = true;
+
+                chip.addEventListener('dragstart', () => {
+                    draggedName = animal.name;
+                    speak(animal.name);
+                });
+
+                chip.addEventListener('touchstart', () => {
+                    draggedName = animal.name;
+                    speak(animal.name);
+                }, {passive: true});
+
+                chip.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    checkProximityAndMatch(touch.clientX, touch.clientY, animal.name);
+                }, {passive: false});
+
+                pool.appendChild(chip);
+            });
+
+            document.ondragover = (e) => {
+                if (draggedName) {
+                    checkProximityAndMatch(e.clientX, e.clientY, draggedName);
+                }
+            };
+        }
+
+        function checkProximityAndMatch(clientX, clientY, wordName) {
+            const dropBoxes = document.querySelectorAll('.drop-box');
+            const PROXIMITY_MARGIN = 80;
+
+            dropBoxes.forEach(box => {
+                if (box.classList.contains('correct')) return;
+                
+                const rect = box.getBoundingClientRect();
+                const isNear = (
+                    clientX >= rect.left - PROXIMITY_MARGIN &&
+                    clientX <= rect.right + PROXIMITY_MARGIN &&
+                    clientY >= rect.top - PROXIMITY_MARGIN &&
+                    clientY <= rect.bottom + PROXIMITY_MARGIN
+                );
+
+                if (isNear) {
+                    box.classList.add('hovered');
+                    if (wordName === box.dataset.answer) {
+                        processMatching(wordName, box);
+                        draggedName = '';
+                    }
+                } else {
+                    box.classList.remove('hovered');
+                }
+            });
+        }
+
+        function processMatching(inputWord, dropBox) {
+            const answer = dropBox.dataset.answer;
+            dropBox.classList.remove('hovered');
+
+            if (dropBox.classList.contains('correct')) return;
+
+            if (inputWord === answer) {
+                dropBox.innerText = answer;
+                dropBox.classList.add('correct');
+                showFeedback('⭕', '#4caf50');
+                playSound('correct');
+                speak(answer);
+
+                document.querySelectorAll('.word-chip').forEach(chip => {
+                    if (chip.dataset.name === answer) chip.style.visibility = 'hidden';
+                });
+
+                const allCorrect = Array.from(document.querySelectorAll('.drop-box')).every(b => b.classList.contains('correct'));
+                if (allCorrect) {
+                    setTimeout(() => {
+                        if (g0Mode === 'practice') {
+                            g0PracticeStep++;
+                            if (g0PracticeStep >= 3) {
+                                openChallengeModal('g0');
+                            } else {
+                                initVocabGame();
+                            }
+                        } else {
+                            g0MainBatchIndex = (g0MainBatchIndex + 1) % 5;
+                            initVocabGame();
+                        }
+                    }, 1000);
+                }
+            } else {
+                showFeedback('❌', '#e53935');
+                playSound('wrong');
+            }
+        }
+
+        /* --- 게임 2: 숨은 모음 찾기 --- */
+        function initVowels() {
+            const grid = document.getElementById('vowel-grid');
+            grid.innerHTML = '';
+            
+            const currentAnimal = animals[currentAnimalIndex];
+
+            vowels.forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = 'vowel-btn';
+                btn.innerText = v;
+
+                if (g1Mode === 'practice' && v === currentAnimal.vowel) {
+                    btn.classList.add('hint-yellow');
+                }
+
+                btn.onclick = () => {
+                    speak(vowelSounds[v]);
+                    if (v === currentAnimal.vowel) {
+                        showFeedback('⭕', '#4caf50');
+                        playSound('correct');
+                        setTimeout(() => {
+                            if (g1Mode === 'practice') {
+                                g1PracticeIndex++;
+                                if (g1PracticeIndex >= 3) {
+                                    openChallengeModal('g1');
+                                } else {
+                                    updateVowelGameCard();
+                                }
+                            } else {
+                                g1MainIndex++;
+                                if (g1MainIndex >= animals.length) {
+                                    document.getElementById('replay-modal').style.display = 'flex';
+                                } else {
+                                    updateVowelGameCard();
+                                }
+                            }
+                        }, 1000);
+                    } else {
+                        showFeedback('❌', '#e53935');
+                        playSound('wrong');
+                    }
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateVowelGameCard() {
+            const status = document.getElementById('g1-status');
+            
+            currentAnimalIndex = (g1Mode === 'practice') ? g1PracticeIndex : g1MainIndex;
+            const animal = animals[currentAnimalIndex];
+            
+            if (g1Mode === 'practice') {
+                status.innerText = `연습 문제 (${g1PracticeIndex + 1}/3) - 노란색 테두리 힌트를 눌러보세요!`;
+            } else {
+                status.innerText = `본 도전 문제 (${g1MainIndex + 1}/10)`;
+            }
+
+            document.getElementById('g1-emoji').innerText = animal.emoji;
+            document.getElementById('g1-name').innerText = animal.name;
+            initVowels();
+        }
+
+        function restartG1Game() {
+            document.getElementById('replay-modal').style.display = 'none';
+            animals = [...baseAnimals].sort(() => Math.random() - 0.5);
+            g1MainIndex = 0;
+            updateVowelGameCard();
+        }
+
+        /* --- 모달 관련 --- */
+        let activeChallengeGame = '';
+        function openChallengeModal(game) {
+            activeChallengeGame = game;
+            document.getElementById('challenge-modal').style.display = 'flex';
+        }
+
+        function startMainChallenge() {
+            document.getElementById('challenge-modal').style.display = 'none';
+            if (activeChallengeGame === 'g0') {
+                g0Mode = 'main';
+                g0MainBatchIndex = 0;
+                initVocabGame();
+            } else if (activeChallengeGame === 'g1') {
+                g1Mode = 'main';
+                g1MainIndex = 0;
+                animals = [...baseAnimals].sort(() => Math.random() - 0.5);
+                updateVowelGameCard();
+            }
+        }
+
+        /* --- 게임 3: 자모음 결합 게임 --- */
+        function initCombineGame() {
+            const status = document.getElementById('g2-status');
+            const currentItem = g2CombineAnimalsData[g2CombineIndex];
+
+            status.innerText = `문제 (${g2CombineIndex + 1}/${g2CombineAnimalsData.length}): ${currentItem.name} 단어를 만드세요!`;
+            document.getElementById('g2-emoji').innerText = currentItem.emoji;
+
+            const card = document.getElementById('g2-card');
+            card.classList.remove('completed-glow');
+
+            g2CharStep = 0;
+            g2CurrentState = currentItem.chars.map(c => c.cho);
+
+            renderCombineTarget();
+            renderCombineVowels();
+        }
+
+        function renderCombineTarget() {
+            const box = document.getElementById('g2-target-box');
+            box.innerHTML = '';
+
+            g2CurrentState.forEach((text, i) => {
+                const slot = document.createElement('div');
+                slot.className = 'char-slot';
+                if (i === g2CharStep) slot.classList.add('active');
+                slot.innerText = text;
+                box.appendChild(slot);
+            });
+        }
+
+        function renderCombineVowels() {
+            const grid = document.getElementById('g2-vowel-grid');
+            grid.innerHTML = '';
+
+            vowels.forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = 'vowel-btn';
+                btn.innerText = v;
+
+                btn.onclick = () => handleCombineVowelSelect(v);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleCombineVowelSelect(selectedVowel) {
+            const currentItem = g2CombineAnimalsData[g2CombineIndex];
+            const targetChar = currentItem.chars[g2CharStep];
+
+            speak(vowelSounds[selectedVowel]);
+
+            if (selectedVowel === targetChar.vowel) {
+                showFeedback('⭕', '#4caf50');
+                playSound('correct');
+
+                g2CurrentState[g2CharStep] = targetChar.full;
+                g2CharStep++;
+
+                renderCombineTarget();
+
+                if (g2CharStep >= currentItem.chars.length) {
+                    const card = document.getElementById('g2-card');
+                    card.classList.add('completed-glow');
+                    speak(currentItem.name);
+
+                    setTimeout(() => {
+                        g2CombineIndex++;
+                        if (g2CombineIndex >= g2CombineAnimalsData.length) {
+                            document.getElementById('g2-replay-modal').style.display = 'flex';
+                        } else {
+                            initCombineGame();
+                        }
+                    }, 1500);
+                }
+            } else {
+                showFeedback('❌', '#e53935');
+                playSound('wrong');
+            }
+        }
+
+        function restartG2CombineGame() {
+            document.getElementById('g2-replay-modal').style.display = 'none';
+            g2CombineIndex = 0;
+            initCombineGame();
+        }
+
+        /* --- 게임 4: 따라쓰기 --- */
+        function initAnimalList() {
+            const list = document.getElementById('animal-list');
+            list.innerHTML = '';
+            baseAnimals.forEach((animal, index) => {
+                const item = document.createElement('div');
+                item.className = 'animal-item';
+                item.id = `animal-item-${index}`;
+                
+                item.innerHTML = `
+                    <div class="emoji-mini">${animal.emoji}</div>
+                    <div class="name">${animal.name}</div>
+                `;
+                
+                item.onclick = () => selectAnimal(index);
+                list.appendChild(item);
+            });
+        }
+
+        function selectAnimal(index) {
+            g3AnimalIndex = index;
+            document.querySelectorAll('.animal-item').forEach(i => i.classList.remove('selected'));
+            const selectedEl = document.getElementById(`animal-item-${index}`);
+            if (selectedEl) selectedEl.classList.add('selected');
+            
+            speakG3AnimalTrace();
+            updateGuideText();
+            clearCanvas();
+        }
+
+        function updateGuideText() {
+            const animal = baseAnimals[g3AnimalIndex];
+            const guideEl = document.getElementById('guide-text');
+            const name = animal.name;
+
+            const container = document.getElementById('canvas-container');
+            const h = container.clientHeight || 180;
+
+            let fontRatio = 0.5;
+            if (name.length === 3) fontRatio = 0.35;
+            const calculatedFontSize = Math.floor(h * fontRatio);
+
+            guideEl.style.fontSize = `${calculatedFontSize}px`;
+            guideEl.innerHTML = `<span style="color: #9e9e9e;">${name}</span>`;
+        }
+
+        /* --- 공통 / 캔버스 기능 --- */
+        function switchGame(gameType) {
+            currentGame = gameType;
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+            if (gameType === 'g0') {
+                document.getElementById('nav-g0').classList.add('active');
+                document.getElementById('screen-g0').classList.add('active');
+                animals = [...baseAnimals];
+                g0Mode = 'practice';
+                g0PracticeStep = 0;
+                initVocabGame();
+            } else if (gameType === 'g1') {
+                document.getElementById('nav-g1').classList.add('active');
+                document.getElementById('screen-g1').classList.add('active');
+                animals = [...baseAnimals];
+                g1Mode = 'practice';
+                g1PracticeIndex = 0;
+                updateVowelGameCard();
+            } else if (gameType === 'g2') {
+                document.getElementById('nav-g2').classList.add('active');
+                document.getElementById('screen-g2').classList.add('active');
+                initCombineGame();
+            } else if (gameType === 'g3') {
+                document.getElementById('nav-g3').classList.add('active');
+                document.getElementById('screen-g3').classList.add('active');
+                selectAnimal(g3AnimalIndex);
+                setTimeout(resizeCanvas, 50);
+            }
+        }
+
+        function showFeedback(symbol, color) {
+            const fb = document.getElementById('feedback');
+            fb.innerText = symbol;
+            fb.style.color = color;
+            fb.style.display = 'block';
+            setTimeout(() => { fb.style.display = 'none'; }, 800);
+        }
+
+        let drawCanvas, ctx, isDrawing = false;
+        let lastX = 0, lastY = 0;
+
+        function initCanvas() {
+            drawCanvas = document.getElementById('draw-canvas');
+            ctx = drawCanvas.getContext('2d');
+            
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                if (currentGame === 'g3') updateGuideText();
+            });
+
+            drawCanvas.addEventListener('pointerdown', startDrawing);
+            drawCanvas.addEventListener('pointermove', draw);
+            drawCanvas.addEventListener('pointerup', stopDrawing);
+            drawCanvas.addEventListener('pointercancel', stopDrawing);
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            if (!container || !drawCanvas) return;
+            drawCanvas.width = container.clientWidth;
+            drawCanvas.height = container.clientHeight;
+            clearCanvas();
+        }
+
+        function clearCanvas() {
+            if (ctx && drawCanvas) {
+                ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            }
+        }
+
+        function getEventPos(e) {
+            const rect = drawCanvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getEventPos(e);
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = '#1565c0';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function stopDrawing() { isDrawing = false; }
+
+        window.onload = () => {
+            initVocabGame();
+            initVowels();
+            initAnimalList();
+            initCanvas();
+        };
+    </script>
+</body>
+</html>
